@@ -1,20 +1,15 @@
 main: ${PACKAGE}.${NAME}
 name: ${NAME}
 version: "${VERSION}"
-api-version: "1.21.1"
-author: AUTHOR
-description: DESCRIPTION
+api-version: "1.21.5"
+author: RozeFound
+description: Water damage zone plugin for Minecraft
 commands:
-  ex:
-    description: Base command for EXAMPLE
-    usage: "For a list of commands, type /ex help"
-    aliases: example
+  zone:
+    description: Manage damage zone anchors
+    usage: "/zone <set1|set2|info|particles> [x] [y] [z]"
+    permission: waterdizzle.zone
 permissions:
-  example.test:
-    description: DESCRIPTION
-    default: true
-  example.*:
-    description: Grants all other permissions
-    default: false
-    children:
-      example.test: true
+  waterdizzle.zone:
+    description: Permission to manage damage zone anchors
+    default: op
