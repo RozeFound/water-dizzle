@@ -2,88 +2,78 @@ package io.github.rozefound.waterdizzle;
 
 import io.github.rozefound.waterdizzle.commands.ZoneCommand;
 import io.github.rozefound.waterdizzle.listeners.WaterDizzleListener;
+import io.github.rozefound.waterdizzle.utils.Condition;
+import io.github.rozefound.waterdizzle.utils.Condition.Direction;
 import io.github.rozefound.waterdizzle.utils.ZoneUtils;
 import io.papermc.lib.PaperLib;
-import java.util.HashSet;
 import org.bukkit.Location;
-import org.bukkit.damage.DamageSource;
+import org.bukkit.Material;
 import org.bukkit.damage.DamageType;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class WaterDizzle extends JavaPlugin {
 
     private WaterDizzleListener waterDizzleListener;
+    public ZoneManager zoneManager;
 
-    private Location[] damageZone;
-    private HashSet<Player> playersInDamageZone;
     private static final double DAMAGE_AMOUNT = 0.5;
     private static final long DAMAGE_INTERVAL_TICKS = 10L; // half a second
-    private boolean particlesEnabled = false;
 
-    private HashSet<Player> wasDamagedByWater;
+    private boolean particlesEnabled = false;
 
     @Override
     public void onEnable() {
         PaperLib.suggestPaper(this);
 
-        // Create and register the example listener
         waterDizzleListener = new WaterDizzleListener(this);
         getServer()
             .getPluginManager()
             .registerEvents(waterDizzleListener, this);
 
-        // Register the zone command
         getCommand("zone").setExecutor(
             new ZoneCommand(this, waterDizzleListener)
         );
 
         saveDefaultConfig();
 
-        damageZone = new Location[2];
-        playersInDamageZone = new HashSet<>();
-        wasDamagedByWater = new HashSet<>();
-
-        damageZone[0] = new Location(
+        Location firstAnchor = new Location(
             this.getServer().getWorlds().get(0),
             1,
             1,
             1
         );
-        damageZone[1] = new Location(
+        Location secondAnchor = new Location(
             this.getServer().getWorlds().get(0),
             1,
             1,
             1
         );
 
-        startDamageTask();
+        zoneManager = new ZoneManager(
+            this,
+            "WaterDamageZone",
+            firstAnchor,
+            secondAnchor
+        );
+
+        zoneManager.setDamageAmount(DAMAGE_AMOUNT);
+        zoneManager.setDamageInterval(DAMAGE_INTERVAL_TICKS);
+
+        zoneManager.setCanDamagePlayer(true);
+        zoneManager.setCanDamageEntity(true);
+
+        zoneManager.setDamageType(DamageType.IN_FIRE);
+
+        zoneManager.addCondition(
+            new Condition(Direction.Inside, Material.WATER)
+        );
+
         startParticleTask();
     }
 
-    public boolean isPlayerGotDamagedByWater(Player player) {
-        return wasDamagedByWater.contains(player);
-    }
-
-    public boolean isPlayerInDamageZone(Player player) {
-        return playersInDamageZone.contains(player);
-    }
-
-    public void addPlayerToDamageZone(Player player) {
-        playersInDamageZone.add(player);
-    }
-
-    public void removePlayerFromDamageZone(Player player) {
-        playersInDamageZone.remove(player);
-    }
-
-    public Location[] getDamageZone() {
-        return damageZone;
-    }
-
     public Location[] getZoneAnchors() {
-        return new Location[] { damageZone[0].clone(), damageZone[1].clone() };
+        return zoneManager.getAnchors();
     }
 
     public boolean toggleParticles() {
@@ -93,13 +83,7 @@ public class WaterDizzle extends JavaPlugin {
     }
 
     public void setZoneAnchor(int anchorIndex, Location location) {
-        if (anchorIndex < 0 || anchorIndex >= damageZone.length) {
-            throw new IllegalArgumentException(
-                "Invalid anchor index: " + anchorIndex
-            );
-        }
-
-        damageZone[anchorIndex] = location.clone();
+        zoneManager.setAnchor(anchorIndex, location);
 
         this.getLogger().info(
             String.format(
@@ -118,32 +102,9 @@ public class WaterDizzle extends JavaPlugin {
             @Override
             public void run() {
                 if (!particlesEnabled) return;
-                ZoneUtils.spawnZoneBorderParticles(damageZone);
+                ZoneUtils.spawnZoneBorderParticles(getZoneAnchors());
             }
         }
             .runTaskTimer(this, 0L, 10L); // Run every half a second
-    }
-
-    private void startDamageTask() {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (Player player : playersInDamageZone) {
-                    if (
-                        player.isOnline() &&
-                        ZoneUtils.isPlayerInZone(player, damageZone) &&
-                        player.isInWater()
-                    ) {
-                        wasDamagedByWater.add(player);
-                        player.damage(
-                            DAMAGE_AMOUNT,
-                            DamageSource.builder(DamageType.MAGIC).build()
-                        );
-                        wasDamagedByWater.remove(player);
-                    }
-                }
-            }
-        }
-            .runTaskTimer(this, 0L, DAMAGE_INTERVAL_TICKS);
     }
 }

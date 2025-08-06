@@ -3,21 +3,33 @@ package io.github.rozefound.waterdizzle.utils;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 
 public final class ZoneUtils {
 
     private ZoneUtils() {}
 
-    public static Bounds getZoneBounds(Location[] zone) {
-        double zoneMinX = Math.min(zone[0].getX(), zone[1].getX());
-        double zoneMaxX = Math.max(zone[0].getX(), zone[1].getX()) + 1.0;
-        double zoneMinY = Math.min(zone[0].getY(), zone[1].getY());
-        double zoneMaxY = Math.max(zone[0].getY(), zone[1].getY()) + 1.0;
-        double zoneMinZ = Math.min(zone[0].getZ(), zone[1].getZ());
-        double zoneMaxZ = Math.max(zone[0].getZ(), zone[1].getZ()) + 1.0;
+    public static Bounds getZoneBounds(
+        Location firstAnchor,
+        Location secondAnchor
+    ) {
+        if (firstAnchor.getWorld() != secondAnchor.getWorld()) {
+            throw new IllegalArgumentException(
+                "Anchors must be in the same world"
+            );
+        }
+
+        double zoneMinX = Math.min(firstAnchor.getX(), secondAnchor.getX());
+        double zoneMaxX =
+            Math.max(firstAnchor.getX(), secondAnchor.getX()) + 1.0;
+        double zoneMinY = Math.min(firstAnchor.getY(), secondAnchor.getY());
+        double zoneMaxY =
+            Math.max(firstAnchor.getY(), secondAnchor.getY()) + 1.0;
+        double zoneMinZ = Math.min(firstAnchor.getZ(), secondAnchor.getZ());
+        double zoneMaxZ =
+            Math.max(firstAnchor.getZ(), secondAnchor.getZ()) + 1.0;
 
         return new Bounds(
+            firstAnchor.getWorld(),
             zoneMinX,
             zoneMinY,
             zoneMinZ,
@@ -27,44 +39,11 @@ public final class ZoneUtils {
         );
     }
 
-    public static boolean isPlayerInZone(Player player, Location[] zone) {
-        Location playerLocation = player.getLocation();
-
-        final double PLAYER_WIDTH = 0.6;
-        final double PLAYER_HEIGHT = 1.8;
-
-        var zoneBounds = getZoneBounds(zone);
-
-        double playerMinX = playerLocation.getX() - (PLAYER_WIDTH / 2);
-        double playerMaxX = playerLocation.getX() + (PLAYER_WIDTH / 2);
-        double playerMinY = playerLocation.getY();
-        double playerMaxY = playerLocation.getY() + PLAYER_HEIGHT;
-        double playerMinZ = playerLocation.getZ() - (PLAYER_WIDTH / 2);
-        double playerMaxZ = playerLocation.getZ() + (PLAYER_WIDTH / 2);
-
-        boolean xOverlap =
-            playerMaxX > zoneBounds.getMinX() &&
-            playerMinX < zoneBounds.getMaxX();
-        boolean yOverlap =
-            playerMaxY > zoneBounds.getMinY() &&
-            playerMinY < zoneBounds.getMaxY();
-        boolean zOverlap =
-            playerMaxZ > zoneBounds.getMinZ() &&
-            playerMinZ < zoneBounds.getMaxZ();
-
-        return (
-            playerLocation.getWorld().equals(zone[0].getWorld()) &&
-            xOverlap &&
-            yOverlap &&
-            zOverlap
-        );
-    }
-
     public static void spawnZoneBorderParticles(Location[] zone) {
         World world = zone[0].getWorld();
         if (world == null) return;
 
-        var zoneBounds = getZoneBounds(zone);
+        var zoneBounds = getZoneBounds(zone[0], zone[1]);
         double step = 0.2; // Distance between particles
 
         // Bottom face edges

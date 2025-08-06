@@ -1,6 +1,13 @@
 package io.github.rozefound.waterdizzle.utils;
 
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.util.BoundingBox;
+
 public final class Bounds {
+
+    private World world;
 
     private double minX;
     private double minY;
@@ -10,6 +17,7 @@ public final class Bounds {
     private double maxZ;
 
     public Bounds(
+        World world,
         double minX,
         double minY,
         double minZ,
@@ -17,6 +25,7 @@ public final class Bounds {
         double maxY,
         double maxZ
     ) {
+        this.world = world;
         this.minX = minX;
         this.minY = minY;
         this.minZ = minZ;
@@ -47,5 +56,33 @@ public final class Bounds {
 
     public double getMaxZ() {
         return maxZ;
+    }
+
+    public boolean containsEntity(final Entity entity) {
+        Location entityLocation = entity.getLocation();
+        BoundingBox entityBoundingBox = entity.getBoundingBox();
+
+        double playerMinX =
+            entityLocation.getX() - (entityBoundingBox.getWidthX() / 2);
+        double playerMaxX =
+            entityLocation.getX() + (entityBoundingBox.getWidthX() / 2);
+        double playerMinY = entityLocation.getY();
+        double playerMaxY =
+            entityLocation.getY() + entityBoundingBox.getHeight();
+        double playerMinZ =
+            entityLocation.getZ() - (entityBoundingBox.getWidthZ() / 2);
+        double playerMaxZ =
+            entityLocation.getZ() + (entityBoundingBox.getWidthZ() / 2);
+
+        boolean xOverlap = playerMaxX > minX && playerMinX < maxX;
+        boolean yOverlap = playerMaxY > minY && playerMinY < maxY;
+        boolean zOverlap = playerMaxZ > minZ && playerMinZ < maxZ;
+
+        return (
+            entityLocation.getWorld().equals(world) &&
+            xOverlap &&
+            yOverlap &&
+            zOverlap
+        );
     }
 }

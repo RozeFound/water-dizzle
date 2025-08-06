@@ -191,7 +191,7 @@ public class ZoneCommand implements CommandExecutor {
             );
         }
 
-        var zoneBounds = ZoneUtils.getZoneBounds(anchors);
+        var zoneBounds = ZoneUtils.getZoneBounds(anchors[0], anchors[1]);
 
         double sizeX = zoneBounds.getMaxX() - zoneBounds.getMinX();
         double sizeY = zoneBounds.getMaxY() - zoneBounds.getMinY();
