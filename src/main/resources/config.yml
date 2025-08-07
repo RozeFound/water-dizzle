@@ -1,1 +1,6 @@
+# WaterDizzle Configuration
 # A journey of 1,000 lines starts with a single char
+
+# Language Settings
+# Default language: ru_ru
+language: "ru_ru"

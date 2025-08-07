@@ -1,110 +1,100 @@
 package io.github.rozefound.waterdizzle;
 
 import io.github.rozefound.waterdizzle.commands.ZoneCommand;
+import io.github.rozefound.waterdizzle.listeners.SelectionListener;
 import io.github.rozefound.waterdizzle.listeners.WaterDizzleListener;
-import io.github.rozefound.waterdizzle.utils.Condition;
-import io.github.rozefound.waterdizzle.utils.Condition.Direction;
-import io.github.rozefound.waterdizzle.utils.ZoneUtils;
+import io.github.rozefound.waterdizzle.listeners.WorldLoadListener;
+import io.github.rozefound.waterdizzle.utils.LanguageManager;
+import io.github.rozefound.waterdizzle.utils.SelectionManager;
+import io.github.rozefound.waterdizzle.utils.ZoneManager;
 import io.papermc.lib.PaperLib;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.damage.DamageType;
+import java.io.File;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class WaterDizzle extends JavaPlugin {
 
     private WaterDizzleListener waterDizzleListener;
-    public ZoneManager zoneManager;
-
-    private static final double DAMAGE_AMOUNT = 0.5;
-    private static final long DAMAGE_INTERVAL_TICKS = 10L; // half a second
-
-    private boolean particlesEnabled = false;
+    private ZoneManager zoneManager;
+    private SelectionManager selectionManager;
+    private LanguageManager languageManager;
 
     @Override
     public void onEnable() {
         PaperLib.suggestPaper(this);
+
+        saveDefaultConfig();
+
+        File langFolder = new File(getDataFolder(), "lang");
+        if (!langFolder.exists()) {
+            langFolder.mkdirs();
+        }
+
+        File englishLangFile = new File(langFolder, "en_us.yml");
+        if (!englishLangFile.exists()) {
+            saveResource("lang/en_us.yml", false);
+        }
+
+        languageManager = new LanguageManager(this);
+        zoneManager = new ZoneManager(this);
+        selectionManager = new SelectionManager(this);
 
         waterDizzleListener = new WaterDizzleListener(this);
         getServer()
             .getPluginManager()
             .registerEvents(waterDizzleListener, this);
 
-        getCommand("zone").setExecutor(
-            new ZoneCommand(this, waterDizzleListener)
-        );
+        WorldLoadListener worldLoadListener = new WorldLoadListener(this);
+        getServer().getPluginManager().registerEvents(worldLoadListener, this);
 
-        saveDefaultConfig();
-
-        Location firstAnchor = new Location(
-            this.getServer().getWorlds().get(0),
-            1,
-            1,
-            1
-        );
-        Location secondAnchor = new Location(
-            this.getServer().getWorlds().get(0),
-            1,
-            1,
-            1
-        );
-
-        zoneManager = new ZoneManager(
+        SelectionListener selectionListener = new SelectionListener(
             this,
-            "WaterDamageZone",
-            firstAnchor,
-            secondAnchor
+            selectionManager
         );
+        getServer().getPluginManager().registerEvents(selectionListener, this);
 
-        zoneManager.setDamageAmount(DAMAGE_AMOUNT);
-        zoneManager.setDamageInterval(DAMAGE_INTERVAL_TICKS);
+        ZoneCommand zoneCommand = new ZoneCommand(this, waterDizzleListener);
+        getCommand("zone").setExecutor(zoneCommand);
+        getCommand("zone").setTabCompleter(zoneCommand);
 
-        zoneManager.setCanDamagePlayer(true);
-        zoneManager.setCanDamageEntity(true);
-
-        zoneManager.setDamageType(DamageType.IN_FIRE);
-
-        zoneManager.addCondition(
-            new Condition(Direction.Inside, Material.WATER)
-        );
-
-        startParticleTask();
-    }
-
-    public Location[] getZoneAnchors() {
-        return zoneManager.getAnchors();
-    }
-
-    public boolean toggleParticles() {
-        var old_value = particlesEnabled;
-        particlesEnabled = !particlesEnabled;
-        return old_value;
-    }
-
-    public void setZoneAnchor(int anchorIndex, Location location) {
-        zoneManager.setAnchor(anchorIndex, location);
-
-        this.getLogger().info(
-            String.format(
-                "Zone anchor %d set to: %.0f, %.0f, %.0f in world %s",
-                anchorIndex + 1,
-                location.getX(),
-                location.getY(),
-                location.getZ(),
-                location.getWorld().getName()
+        getLogger().info(languageManager.getMessage("general.plugin-enabled"));
+        getLogger().info(
+            languageManager.getMessage(
+                "general.plugin-loaded-zones",
+                "count",
+                String.valueOf(zoneManager.getZoneCount())
             )
         );
     }
 
-    private void startParticleTask() {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (!particlesEnabled) return;
-                ZoneUtils.spawnZoneBorderParticles(getZoneAnchors());
-            }
+    @Override
+    public void onDisable() {
+        if (zoneManager != null) {
+            zoneManager.saveZones();
         }
-            .runTaskTimer(this, 0L, 10L); // Run every half a second
+
+        if (selectionManager != null) {
+            selectionManager.stopVisualization();
+        }
+
+        getLogger().info(languageManager.getMessage("general.plugin-disabled"));
+    }
+
+    public ZoneManager getZoneManager() {
+        return zoneManager;
+    }
+
+    public SelectionManager getSelectionManager() {
+        return selectionManager;
+    }
+
+    public LanguageManager getLanguageManager() {
+        return languageManager;
+    }
+
+    public void reload() {
+        reloadConfig();
+        languageManager.reload();
+        zoneManager.loadZones();
+        getLogger().info(languageManager.getMessage("general.config-reloaded"));
     }
 }

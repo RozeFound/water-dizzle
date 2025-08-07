@@ -34,6 +34,10 @@ public final class Bounds {
         this.maxZ = maxZ;
     }
 
+    public World getWorld() {
+        return world;
+    }
+
     public double getMinX() {
         return minX;
     }
@@ -56,6 +60,37 @@ public final class Bounds {
 
     public double getMaxZ() {
         return maxZ;
+    }
+
+    public static Bounds fromAnchors(
+        Location firstAnchor,
+        Location secondAnchor
+    ) {
+        if (firstAnchor.getWorld() != secondAnchor.getWorld()) {
+            throw new IllegalArgumentException(
+                "Anchors must be in the same world"
+            );
+        }
+
+        double zoneMinX = Math.min(firstAnchor.getX(), secondAnchor.getX());
+        double zoneMaxX =
+            Math.max(firstAnchor.getX(), secondAnchor.getX()) + 1.0;
+        double zoneMinY = Math.min(firstAnchor.getY(), secondAnchor.getY());
+        double zoneMaxY =
+            Math.max(firstAnchor.getY(), secondAnchor.getY()) + 1.0;
+        double zoneMinZ = Math.min(firstAnchor.getZ(), secondAnchor.getZ());
+        double zoneMaxZ =
+            Math.max(firstAnchor.getZ(), secondAnchor.getZ()) + 1.0;
+
+        return new Bounds(
+            firstAnchor.getWorld(),
+            zoneMinX,
+            zoneMinY,
+            zoneMinZ,
+            zoneMaxX,
+            zoneMaxY,
+            zoneMaxZ
+        );
     }
 
     public boolean containsEntity(final Entity entity) {
@@ -84,5 +119,55 @@ public final class Bounds {
             yOverlap &&
             zOverlap
         );
+    }
+
+    public boolean contains(Location location) {
+        if (location == null) return false;
+        if (!location.getWorld().equals(world)) return false;
+
+        double x = location.getX();
+        double y = location.getY();
+        double z = location.getZ();
+
+        return (
+            x >= minX &&
+            x <= maxX &&
+            y >= minY &&
+            y <= maxY &&
+            z >= minZ &&
+            z <= maxZ
+        );
+    }
+
+    public boolean containsBlock(Location location) {
+        if (location == null) return false;
+        if (!location.getWorld().equals(world)) return false;
+
+        int x = location.getBlockX();
+        int y = location.getBlockY();
+        int z = location.getBlockZ();
+
+        return (
+            x >= minX &&
+            x < maxX &&
+            y >= minY &&
+            y < maxY &&
+            z >= minZ &&
+            z < maxZ
+        );
+    }
+
+    public Location getCenter() {
+        double centerX = (minX + maxX) / 2.0;
+        double centerY = (minY + maxY) / 2.0;
+        double centerZ = (minZ + maxZ) / 2.0;
+        return new Location(world, centerX, centerY, centerZ);
+    }
+
+    public int getVolume() {
+        int width = (int) (maxX - minX);
+        int height = (int) (maxY - minY);
+        int length = (int) (maxZ - minZ);
+        return width * height * length;
     }
 }

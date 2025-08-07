@@ -1,15 +1,62 @@
-main: ${PACKAGE}.${NAME}
+main: ${PACKAGE}.WaterDizzle
 name: ${NAME}
 version: "${VERSION}"
 api-version: "1.21.5"
 author: RozeFound
-description: Water damage zone plugin for Minecraft
+description: Advanced zone management plugin with damage zones and visualization
 commands:
   zone:
-    description: Manage damage zone anchors
-    usage: "/zone <set1|set2|info|particles> [x] [y] [z]"
+    description: Manage zones with various properties and damage settings
+    usage: "/zone <help|list|create|remove|edit|info|select|deselect|set1|set2> [args]"
     permission: waterdizzle.zone
+    aliases: [zones]
 permissions:
   waterdizzle.zone:
-    description: Permission to manage damage zone anchors
+    description: Base permission for zone commands
     default: op
+    children:
+      waterdizzle.zone.help: true
+      waterdizzle.zone.list: true
+      waterdizzle.zone.info: true
+      waterdizzle.zone.show: true
+  waterdizzle.zone.help:
+    description: Permission to view zone help
+    default: true
+  waterdizzle.zone.list:
+    description: Permission to list all zones
+    default: op
+  waterdizzle.zone.create:
+    description: Permission to create new zones
+    default: op
+  waterdizzle.zone.remove:
+    description: Permission to remove zones
+    default: op
+  waterdizzle.zone.edit:
+    description: Permission to edit zone properties
+    default: op
+  waterdizzle.zone.info:
+    description: Permission to view zone information
+    default: op
+  waterdizzle.zone.show:
+    description: Permission to visualize zones with particles
+    default: op
+  waterdizzle.zone.set:
+    description: Permission to set zone anchor points
+    default: op
+  waterdizzle.zone.select:
+    description: Permission to use select/deselect mode for zone anchor selection
+    default: op
+  waterdizzle.zone.reload:
+    description: Permission to reload configuration and language files
+    default: op
+  waterdizzle.zone.admin:
+    description: Full administrative access to all zone commands
+    default: op
+    children:
+      waterdizzle.zone: true
+      waterdizzle.zone.create: true
+      waterdizzle.zone.remove: true
+      waterdizzle.zone.edit: true
+      waterdizzle.zone.set: true
+      waterdizzle.zone.select: true
+      waterdizzle.zone.reload: true
