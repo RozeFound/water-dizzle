@@ -50,8 +50,6 @@ public class LanguageManager {
             langFolder.mkdirs();
         }
 
-        migrateLegacyLanguageFile();
-
         loadDefaultLanguage();
 
         langFile = new File(langFolder, currentLanguage + ".yml");
