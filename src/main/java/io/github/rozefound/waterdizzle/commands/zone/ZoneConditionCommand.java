@@ -315,9 +315,8 @@ public class ZoneConditionCommand extends AbstractZoneSubCommand {
         zone.addCondition(condition);
         plugin.getZoneManager().saveZones();
 
-        String border = plugin
-            .getLanguageManager()
-            .getMessage("commands.zone.condition.condition-added-header-style");
+        String border =
+            "<gradient:#2ECC71:#27AE60>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</gradient>";
         String successMessage =
             "\n" +
             border +
@@ -470,11 +469,8 @@ public class ZoneConditionCommand extends AbstractZoneSubCommand {
         conditions.remove(index);
         plugin.getZoneManager().saveZones();
 
-        String border = plugin
-            .getLanguageManager()
-            .getMessage(
-                "commands.zone.condition.condition-removed-header-style"
-            );
+        String border =
+            "<gradient:#F39C12:#E67E22>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</gradient>";
         String removalMessage =
             "\n" +
             border +
@@ -526,9 +522,8 @@ public class ZoneConditionCommand extends AbstractZoneSubCommand {
     private boolean handleListConditions(CommandSender sender, Zone zone) {
         ArrayList<Condition> conditions = zone.getConditions();
 
-        String border = plugin
-            .getLanguageManager()
-            .getMessage("commands.zone.condition.condition-list-header-style");
+        String border =
+            "<gradient:#3498DB:#2980B9>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</gradient>";
         String headerMessage =
             "\n" +
             border +
@@ -723,11 +718,8 @@ public class ZoneConditionCommand extends AbstractZoneSubCommand {
         conditions.clear();
         plugin.getZoneManager().saveZones();
 
-        String border = plugin
-            .getLanguageManager()
-            .getMessage(
-                "commands.zone.condition.condition-removed-header-style"
-            );
+        String border =
+            "<gradient:#F39C12:#E67E22>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</gradient>";
         String clearMessage =
             "\n" +
             border +

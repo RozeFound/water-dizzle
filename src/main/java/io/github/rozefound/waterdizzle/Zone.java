@@ -223,10 +223,7 @@ public final class Zone {
     }
 
     public Component getDeathMessageComponent() {
-        String messageTemplate = this.deathMessage != null
-            ? this.deathMessage.replace("{player}", "<player>")
-            : "<player> has perished in the zone.";
-        return MiniMessage.miniMessage().deserialize(messageTemplate);
+        return MiniMessage.miniMessage().deserialize(this.deathMessage);
     }
 
     public boolean damageAnimal() {
@@ -358,12 +355,8 @@ public final class Zone {
         if (damagedPlayers.contains(player)) {
             MiniMessage mm = MiniMessage.miniMessage();
 
-            String messageTemplate = this.deathMessage != null
-                ? this.deathMessage.replace("{player}", "<player>")
-                : "<player> has perished in the zone.";
-
             Component formattedMessage = mm.deserialize(
-                messageTemplate,
+                this.deathMessage,
                 Placeholder.unparsed("player", player.getName())
             );
             event.deathMessage(formattedMessage);

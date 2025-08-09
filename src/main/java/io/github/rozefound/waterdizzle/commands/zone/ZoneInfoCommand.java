@@ -350,7 +350,7 @@ public class ZoneInfoCommand extends AbstractZoneSubCommand {
                 .getLanguageManager()
                 .getMessage("commands.zone.info.edit-properties") +
             "</aqua></hover></click>\n" +
-            "<click:suggest_command:'/zone show " +
+            "<click:suggest_command:'/zone select " +
             zone.getName() +
             "'>" +
             "<hover:show_text:'<gray>" +
