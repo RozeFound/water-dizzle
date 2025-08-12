@@ -65,7 +65,7 @@ repositories {
 dependencies {
     compileOnly 'io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT'
     implementation 'io.papermc:paperlib:1.0.8'
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.google.code.gson:gson:2.13.1'
     testImplementation 'io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT'
 }
 
