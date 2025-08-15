@@ -1,6 +1,7 @@
 package io.github.rozefound.waterdizzle.listeners;
 
 import io.github.rozefound.waterdizzle.WaterDizzle;
+import io.github.rozefound.waterdizzle.utils.Bounds;
 import io.papermc.paper.event.entity.EntityMoveEvent;
 import java.util.HashMap;
 import java.util.UUID;
@@ -22,9 +23,12 @@ public class WaterDizzleListener implements Listener {
 
     private final WaterDizzle plugin;
     private final HashMap<UUID, Location> lastKnown = new HashMap<>();
+    private int ItemLookupDistanceModifier;
 
     public WaterDizzleListener(WaterDizzle plugin) {
         this.plugin = plugin;
+
+        ItemLookupDistanceModifier = plugin.getConfig().getInt("item_lookup_distance_modifier", 0);
 
         new BukkitRunnable() {
             @Override
@@ -38,7 +42,7 @@ public class WaterDizzleListener implements Listener {
 
                     Location current = item.getLocation();
                     if (!current.equals(entry.getValue())) {
-                        if (!anyZoneContainsEntity(item)) {
+                        if (!anyZoneContainsEntity(item, ItemLookupDistanceModifier)) {
                             lastKnown.remove(entry.getKey());
                         }
                         entry.setValue(current);
@@ -50,11 +54,23 @@ public class WaterDizzleListener implements Listener {
             .runTaskTimer(plugin, 0L, 1L);
     }
 
-    private boolean anyZoneContainsEntity(Entity entity) {
+    private boolean anyZoneContainsEntity(Entity entity, int lookupModifier) {
         for (var zone : plugin.getZoneManager().getZones()) {
-            if (zone.getBounds().containsEntity(entity)) {
+
+            var oldBounds = zone.getBounds();
+
+            var newBounds = lookupModifier <= 0 ? oldBounds
+                    : new Bounds(oldBounds.getWorld(),
+                    oldBounds.getMinX() - lookupModifier,
+                    oldBounds.getMinY() - lookupModifier,
+                    oldBounds.getMinZ() - lookupModifier,
+                    oldBounds.getMaxX() + lookupModifier,
+                    oldBounds.getMaxY() + lookupModifier,
+                    oldBounds.getMaxZ() + lookupModifier);
+
+            if (newBounds.containsEntity(entity))
                 return true;
-            }
+
         }
         return false;
     }
@@ -62,7 +78,7 @@ public class WaterDizzleListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onItemSpawn(ItemSpawnEvent event) {
         Item item = event.getEntity();
-        if (anyZoneContainsEntity(item)) {
+        if (anyZoneContainsEntity(item, ItemLookupDistanceModifier)) {
             lastKnown.put(item.getUniqueId(), item.getLocation());
         }
     }

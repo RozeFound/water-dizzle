@@ -4,3 +4,6 @@
 # Language Settings
 # Default language: ru_ru
 language: "ru_ru"
+
+# Distance in blocks outside of zone we track thrown items
+item_lookup_distance_modifier: 10
