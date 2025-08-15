@@ -295,9 +295,6 @@ public final class Zone {
     }
 
     public void dealDamage(Entity entity) {
-        if (this.destroyItem && entity instanceof Item) {
-            ((Item) entity).remove();
-        }
 
         if (damageAmount == 0) return;
 
@@ -386,6 +383,11 @@ public final class Zone {
     }
 
     public void startDamageTaskForEntity(Entity entity, long taskDelay) {
+
+        if (this.destroyItem && entity instanceof Item item && shouldApplyDamage(entity)) {
+            item.remove(); return;
+        }
+
         if (
             tasks.containsKey(entity) ||
             !shouldApplyDamage(entity) ||
