@@ -4,7 +4,6 @@ import com.google.gson.annotations.Expose;
 import io.github.rozefound.waterdizzle.serialization.GsonFactory;
 import io.github.rozefound.waterdizzle.utils.Bounds;
 import io.github.rozefound.waterdizzle.utils.Condition;
-import io.papermc.paper.event.entity.EntityMoveEvent;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -319,29 +318,11 @@ public final class Zone {
         }
     }
 
-    public void onPlayerMove(PlayerMoveEvent event) {
+    public void onEntityMove(Entity entity) {
         if (!enabled) return;
-        Player player = event.getPlayer();
-
-        if (this.bounds.containsEntity(player)) {
-            startDamageTaskForEntity(player, 5L);
-        }
-    }
-
-    public void onEntityMove(EntityMoveEvent event) {
-        if (!enabled) return;
-        Entity entity = event.getEntity();
 
         if (this.bounds.containsEntity(entity)) {
             startDamageTaskForEntity(entity, 5L);
-        }
-    }
-
-    public void onItemMove(Item item) {
-        if (!enabled) return;
-
-        if (this.bounds.containsEntity(item)) {
-            startDamageTaskForEntity(item, 5L);
         }
     }
 

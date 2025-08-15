@@ -82,20 +82,20 @@ public class WaterDizzleListener implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void OnPlayerMoveEvent(PlayerMoveEvent event) {
         for (var zone : plugin.getZoneManager().getZones()) {
-            zone.onPlayerMove(event);
+            zone.onEntityMove(event.getPlayer());
         }
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onEntityMoveEvent(EntityMoveEvent event) {
         for (var zone : plugin.getZoneManager().getZones()) {
-            zone.onEntityMove(event);
+            zone.onEntityMove(event.getEntity());
         }
     }
 
     public void onItemMove(Item item) {
         for (var zone : plugin.getZoneManager().getZones()) {
-            zone.onItemMove(item);
+            zone.onEntityMove(item);
         }
     }
 
