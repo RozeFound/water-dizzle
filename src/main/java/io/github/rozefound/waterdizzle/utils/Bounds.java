@@ -97,21 +97,21 @@ public final class Bounds {
         Location entityLocation = entity.getLocation();
         BoundingBox entityBoundingBox = entity.getBoundingBox();
 
-        double playerMinX =
+        double entityMinX =
             entityLocation.getX() - (entityBoundingBox.getWidthX() / 2);
-        double playerMaxX =
+        double entityMaxX =
             entityLocation.getX() + (entityBoundingBox.getWidthX() / 2);
-        double playerMinY = entityLocation.getY();
-        double playerMaxY =
+        double entityMinY = entityLocation.getY();
+        double entityMaxY =
             entityLocation.getY() + entityBoundingBox.getHeight();
-        double playerMinZ =
+        double entityMinZ =
             entityLocation.getZ() - (entityBoundingBox.getWidthZ() / 2);
-        double playerMaxZ =
+        double entityMaxZ =
             entityLocation.getZ() + (entityBoundingBox.getWidthZ() / 2);
 
-        boolean xOverlap = playerMaxX > minX && playerMinX < maxX;
-        boolean yOverlap = playerMaxY > minY && playerMinY < maxY;
-        boolean zOverlap = playerMaxZ > minZ && playerMinZ < maxZ;
+        boolean xOverlap = entityMaxX > minX && entityMinX < maxX;
+        boolean yOverlap = entityMaxY > minY && entityMinY < maxY;
+        boolean zOverlap = entityMaxZ > minZ && entityMinZ < maxZ;
 
         return (
             entityLocation.getWorld().equals(world) &&
